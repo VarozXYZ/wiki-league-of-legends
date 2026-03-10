@@ -82,6 +82,7 @@ python manage.py migrate
 # 5. (Opcional) Seed de datos de ejemplo
 python manage.py seed_champions
 python manage.py seed_items
+python manage.py seed_regions
 
 # 6. Arrancar el servidor
 python manage.py runserver
