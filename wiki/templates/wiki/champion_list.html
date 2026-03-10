@@ -1,0 +1,61 @@
+{% extends 'wiki/base.html' %}
+{% load static %}
+
+{% block title %}Campeones | Runeterra Archive{% endblock %}
+
+{% block content %}
+<section class="list-hero">
+    <div>
+        <p class="eyebrow">Campeones</p>
+        <h2>Listado de campeones</h2>
+    </div>
+    {% if perms.wiki.add_champion %}
+        <a class="solid-button" href="{% url 'wiki:champion_create' %}">Nuevo campeón</a>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <form method="get" class="filter-bar">
+        <input type="text" name="q" placeholder="Buscar por nombre, rol o año" value="{{ request.GET.q }}">
+        <select name="sort">
+            <option value="name" {% if request.GET.sort == 'name' or not request.GET.sort %}selected{% endif %}>Nombre</option>
+            <option value="release_year" {% if request.GET.sort == 'release_year' %}selected{% endif %}>Año</option>
+            <option value="role" {% if request.GET.sort == 'role' %}selected{% endif %}>Rol</option>
+        </select>
+        <button type="submit" class="ghost-button">Aplicar</button>
+    </form>
+
+    <div class="card-list champion-results-grid">
+        {% for champion in champions %}
+            <article class="lore-card champion-card">
+                <a class="champion-thumb" href="{% url 'wiki:champion_detail' champion.pk %}">
+                    <img
+                        src="{{ champion.wiki_square_image_url }}"
+                        alt="{{ champion.name }}"
+                        onerror="this.onerror=null;this.src='{% static 'wiki/placeholders/champion.svg' %}';"
+                    >
+                </a>
+                <div class="card-copy">
+                    <p class="eyebrow">{{ champion.role }}</p>
+                    <h3><a href="{% url 'wiki:champion_detail' champion.pk %}">{{ champion.name }}</a></h3>
+                    <p>{{ champion.title }}</p>
+                    <p class="meta-line">Año de salida: {{ champion.release_year }}</p>
+                </div>
+                <div class="card-actions">
+                    <a href="{% url 'wiki:champion_detail' champion.pk %}">Detalle</a>
+                    {% if perms.wiki.change_champion %}
+                        <a href="{% url 'wiki:champion_edit' champion.pk %}">Editar</a>
+                    {% endif %}
+                    {% if perms.wiki.delete_champion %}
+                        <a href="{% url 'wiki:champion_delete' champion.pk %}">Borrar</a>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <p class="empty-state">No hay campeones registrados.</p>
+        {% endfor %}
+    </div>
+
+    {% include 'wiki/pagination.html' %}
+</section>
+{% endblock %}

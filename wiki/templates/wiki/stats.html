@@ -1,0 +1,115 @@
+{% extends 'wiki/base.html' %}
+
+{% block title %}Estadísticas | Runeterra Archive{% endblock %}
+
+{% block content %}
+<section class="list-hero">
+    <div>
+        <p class="eyebrow">Acceso a datos</p>
+        <h2>Estadísticas de la wiki</h2>
+    </div>
+</section>
+
+<section class="content-grid">
+    <article class="stat-card">
+        <span>Campeones</span>
+        <strong>{{ total_champions }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Regiones</span>
+        <strong>{{ total_regions }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Objetos</span>
+        <strong>{{ total_items }}</strong>
+    </article>
+</section>
+
+<section class="chart-grid">
+    <article class="panel chart-panel">
+        <h3>Campeones por rol</h3>
+        <canvas id="roleChart"></canvas>
+    </article>
+    <article class="panel chart-panel">
+        <h3>Campeones por región</h3>
+        <canvas id="regionChart"></canvas>
+    </article>
+    <article class="panel chart-panel">
+        <h3>Objetos por tier</h3>
+        <canvas id="tierChart"></canvas>
+    </article>
+    <article class="panel chart-panel">
+        <h3>Coste medio por tier</h3>
+        <canvas id="avgTierChart"></canvas>
+    </article>
+    <article class="panel chart-panel">
+        <h3>Campeones por año</h3>
+        <canvas id="yearChart"></canvas>
+    </article>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('roleChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ role_labels|safe }},
+        datasets: [{
+            label: 'Campeones',
+            data: {{ role_values|safe }},
+            backgroundColor: '#c8aa6e'
+        }]
+    }
+});
+
+new Chart(document.getElementById('regionChart'), {
+    type: 'doughnut',
+    data: {
+        labels: {{ region_labels|safe }},
+        datasets: [{
+            label: 'Campeones',
+            data: {{ region_values|safe }},
+            backgroundColor: ['#c8aa6e', '#1d3557', '#8d6e63', '#588157', '#9f2a2a', '#264653']
+        }]
+    }
+});
+
+new Chart(document.getElementById('tierChart'), {
+    type: 'pie',
+    data: {
+        labels: {{ tier_labels|safe }},
+        datasets: [{
+            label: 'Objetos',
+            data: {{ tier_values|safe }},
+            backgroundColor: ['#d6ad60', '#457b9d', '#7b2cbf', '#a4161a']
+        }]
+    }
+});
+
+new Chart(document.getElementById('avgTierChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ avg_tier_labels|safe }},
+        datasets: [{
+            label: 'Oro medio',
+            data: {{ avg_tier_values|safe }},
+            backgroundColor: '#3a86ff'
+        }]
+    }
+});
+
+new Chart(document.getElementById('yearChart'), {
+    type: 'line',
+    data: {
+        labels: {{ year_labels|safe }},
+        datasets: [{
+            label: 'Campeones lanzados',
+            data: {{ year_values|safe }},
+            borderColor: '#e76f51',
+            backgroundColor: '#e76f51',
+            tension: 0.25
+        }]
+    }
+});
+</script>
+{% endblock %}

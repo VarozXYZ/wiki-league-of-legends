@@ -1,0 +1,17 @@
+{% extends 'wiki/base.html' %}
+
+{% block title %}Borrar elemento | Runeterra Archive{% endblock %}
+
+{% block content %}
+<section class="form-panel">
+    <div class="panel-header">
+        <h2>Confirmar borrado</h2>
+    </div>
+    <p class="delete-copy">Vas a borrar <strong>{{ object }}</strong>. Esta acción no se puede deshacer.</p>
+    <form method="post" class="inline-actions">
+        {% csrf_token %}
+        <button type="submit" class="danger-button">Borrar</button>
+        <a class="ghost-button" href="{% url 'wiki:home' %}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

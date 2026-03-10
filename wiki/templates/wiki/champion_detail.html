@@ -1,0 +1,56 @@
+{% extends 'wiki/base.html' %}
+{% load static %}
+
+{% block title %}{{ champion.name }} | Runeterra Archive{% endblock %}
+
+{% block content %}
+<article class="detail-panel">
+    <div class="detail-heading">
+        <div>
+            <p class="eyebrow">{{ champion.role }}</p>
+            <h2>{{ champion.name }}</h2>
+            <p class="detail-subtitle">{{ champion.title }}</p>
+        </div>
+        <img
+            src="{{ champion.wiki_square_image_url }}"
+            alt="{{ champion.name }}"
+            onerror="this.onerror=null;this.src='{% static 'wiki/placeholders/champion.svg' %}';"
+        >
+    </div>
+
+    <div class="detail-grid">
+        <section class="panel">
+            <h3>Ficha</h3>
+            <ul class="detail-list">
+                <li><strong>Recurso:</strong> {{ champion.resource_type }}</li>
+                <li><strong>Año:</strong> {{ champion.release_year }}</li>
+            </ul>
+        </section>
+        <section class="panel">
+            <h3>Regiones</h3>
+            <ul class="detail-list">
+                {% for region in champion.regions.all %}
+                    <li><a href="{% url 'wiki:region_detail' region.pk %}">{{ region.name }}</a></li>
+                {% empty %}
+                    <li>Sin regiones asociadas.</li>
+                {% endfor %}
+            </ul>
+        </section>
+        <section class="panel">
+            <h3>Objetos destacados</h3>
+            <ul class="detail-list">
+                {% for item in champion.featured_items.all %}
+                    <li><a href="{% url 'wiki:item_detail' item.pk %}">{{ item.name }}</a></li>
+                {% empty %}
+                    <li>Sin objetos destacados.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+
+    <section class="panel">
+        <h3>Lore</h3>
+        <p class="lore-copy">{{ champion.lore }}</p>
+    </section>
+</article>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'wiki/base.html' %}
+
+{% block title %}Inicio | Runeterra Archive{% endblock %}
+
+{% block content %}
+<section class="hero-panel">
+    <div class="hero-copy">
+        <p class="eyebrow">Proyecto del 2º trimestre</p>
+        <h2>Una wiki sencilla de League of Legends centrada en campeones, regiones y objetos.</h2>
+        <p>
+            El sitio está preparado con CRUD web, API con JWT, paginación, filtrado, ordenado, estadísticas y control de acceso por permisos.
+        </p>
+        <div class="hero-actions">
+            <a class="solid-button" href="{% url 'wiki:champion_list' %}">Explorar campeones</a>
+            <a class="ghost-button" href="{% url 'wiki:stats' %}">Ver estadísticas</a>
+        </div>
+    </div>
+    <div class="stat-grid">
+        <article class="stat-card">
+            <span>Total campeones</span>
+            <strong>{{ champion_count }}</strong>
+        </article>
+        <article class="stat-card">
+            <span>Total regiones</span>
+            <strong>{{ region_count }}</strong>
+        </article>
+        <article class="stat-card">
+            <span>Total objetos</span>
+            <strong>{{ item_count }}</strong>
+        </article>
+    </div>
+</section>
+
+<section class="content-grid">
+    <article class="panel">
+        <div class="panel-header">
+            <h3>Últimos campeones</h3>
+            <a href="{% url 'wiki:champion_list' %}">Ver todos</a>
+        </div>
+        <div class="mini-list">
+            {% for champion in latest_champions %}
+                <a class="mini-card" href="{% url 'wiki:champion_detail' champion.pk %}">
+                    <span class="mini-card-title">{{ champion.name }}</span>
+                    <span class="mini-card-meta">{{ champion.role }} · {{ champion.release_year }}</span>
+                </a>
+            {% empty %}
+                <p class="empty-state">Todavía no hay campeones cargados.</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-header">
+            <h3>Objetos destacados</h3>
+            <a href="{% url 'wiki:item_list' %}">Ver todos</a>
+        </div>
+        <div class="mini-list">
+            {% for item in latest_items %}
+                <a class="mini-card" href="{% url 'wiki:item_detail' item.pk %}">
+                    <span class="mini-card-title">{{ item.name }}</span>
+                    <span class="mini-card-meta">{{ item.tier }} · {{ item.gold_cost }} de oro</span>
+                </a>
+            {% empty %}
+                <p class="empty-state">Todavía no hay objetos cargados.</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-header">
+            <h3>Regiones</h3>
+            <a href="{% url 'wiki:region_list' %}">Ver todas</a>
+        </div>
+        <div class="mini-list">
+            {% for region in latest_regions %}
+                <a class="mini-card" href="{% url 'wiki:region_detail' region.pk %}">
+                    <span class="mini-card-title">{{ region.name }}</span>
+                    <span class="mini-card-meta">{{ region.faction }} · {{ region.capital }}</span>
+                </a>
+            {% empty %}
+                <p class="empty-state">Todavía no hay regiones cargadas.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}

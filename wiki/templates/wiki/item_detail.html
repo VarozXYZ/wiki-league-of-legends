@@ -1,0 +1,37 @@
+{% extends 'wiki/base.html' %}
+{% load static %}
+
+{% block title %}{{ item.name }} | Runeterra Archive{% endblock %}
+
+{% block content %}
+<article class="detail-panel">
+    <div class="detail-heading">
+        <div>
+            <p class="eyebrow">{{ item.tier }}</p>
+            <h2>{{ item.name }}</h2>
+            <p class="detail-subtitle">{{ item.slot_type }} · {{ item.gold_cost }} de oro</p>
+        </div>
+        <img
+            src="{{ item.wiki_image_url }}"
+            alt="{{ item.name }}"
+            onerror="this.onerror=null;this.src='{% static 'wiki/placeholders/item.svg' %}';"
+        >
+    </div>
+
+    <section class="panel">
+        <h3>Descripción</h3>
+        <p class="lore-copy">{{ item.description }}</p>
+    </section>
+
+    <section class="panel">
+        <h3>Campeones recomendados</h3>
+        <ul class="detail-list">
+            {% for champion in item.champions.all %}
+                <li><a href="{% url 'wiki:champion_detail' champion.pk %}">{{ champion.name }}</a></li>
+            {% empty %}
+                <li>Este objeto todavía no está marcado como destacado para ningún campeón.</li>
+            {% endfor %}
+        </ul>
+    </section>
+</article>
+{% endblock %}

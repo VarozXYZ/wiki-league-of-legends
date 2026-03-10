@@ -1,0 +1,51 @@
+{% extends 'wiki/base.html' %}
+{% load static %}
+
+{% block title %}Objetos | Runeterra Archive{% endblock %}
+
+{% block content %}
+<section class="list-hero">
+    <div>
+        <p class="eyebrow">Objetos</p>
+        <h2>Listado de objetos</h2>
+    </div>
+    {% if perms.wiki.add_item %}
+        <a class="solid-button" href="{% url 'wiki:item_create' %}">Nuevo objeto</a>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <div class="card-list result-grid">
+        {% for item in items %}
+            <article class="lore-card result-card">
+                <a class="result-thumb" href="{% url 'wiki:item_detail' item.pk %}">
+                    <img
+                        src="{{ item.wiki_image_url }}"
+                        alt="{{ item.name }}"
+                        onerror="this.onerror=null;this.src='{% static 'wiki/placeholders/item.svg' %}';"
+                    >
+                </a>
+                <div class="card-copy">
+                    <p class="eyebrow">{{ item.tier }}</p>
+                    <h3><a href="{% url 'wiki:item_detail' item.pk %}">{{ item.name }}</a></h3>
+                    <p>{{ item.slot_type }}</p>
+                    <p class="meta-line">{{ item.gold_cost }} de oro</p>
+                </div>
+                <div class="card-actions">
+                    <a href="{% url 'wiki:item_detail' item.pk %}">Detalle</a>
+                    {% if perms.wiki.change_item %}
+                        <a href="{% url 'wiki:item_edit' item.pk %}">Editar</a>
+                    {% endif %}
+                    {% if perms.wiki.delete_item %}
+                        <a href="{% url 'wiki:item_delete' item.pk %}">Borrar</a>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <p class="empty-state">No hay objetos registrados.</p>
+        {% endfor %}
+    </div>
+
+    {% include 'wiki/pagination.html' %}
+</section>
+{% endblock %}

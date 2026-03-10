@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#1f2c17" />
+      <stop offset="100%" stop-color="#08131f" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)" rx="36" />
+  <path d="M125 530 250 335l118 78 160-210 146 327Z" fill="#c8aa6e" />
+  <path d="M140 590h520" stroke="#f4efe4" stroke-linecap="round" stroke-width="22" />
+  <text x="400" y="720" fill="#f4efe4" font-family="Georgia, serif" font-size="74" text-anchor="middle">Region</text>
+</svg>

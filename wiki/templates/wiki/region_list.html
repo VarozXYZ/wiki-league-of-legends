@@ -1,0 +1,50 @@
+{% extends 'wiki/base.html' %}
+{% load static %}
+
+{% block title %}Regiones | Runeterra Archive{% endblock %}
+
+{% block content %}
+<section class="list-hero">
+    <div>
+        <p class="eyebrow">Regiones</p>
+        <h2>Listado de regiones</h2>
+    </div>
+    {% if perms.wiki.add_region %}
+        <a class="solid-button" href="{% url 'wiki:region_create' %}">Nueva región</a>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <div class="card-list result-grid">
+        {% for region in regions %}
+            <article class="lore-card result-card">
+                <a class="result-thumb" href="{% url 'wiki:region_detail' region.pk %}">
+                    <img
+                        src="{{ region.wiki_image_url }}"
+                        alt="{{ region.name }}"
+                        onerror="this.onerror=null;this.src='{% static 'wiki/placeholders/region.svg' %}';"
+                    >
+                </a>
+                <div class="card-copy">
+                    <p class="eyebrow">{{ region.faction }}</p>
+                    <h3><a href="{% url 'wiki:region_detail' region.pk %}">{{ region.name }}</a></h3>
+                    <p>Capital: {{ region.capital }}</p>
+                </div>
+                <div class="card-actions">
+                    <a href="{% url 'wiki:region_detail' region.pk %}">Detalle</a>
+                    {% if perms.wiki.change_region %}
+                        <a href="{% url 'wiki:region_edit' region.pk %}">Editar</a>
+                    {% endif %}
+                    {% if perms.wiki.delete_region %}
+                        <a href="{% url 'wiki:region_delete' region.pk %}">Borrar</a>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <p class="empty-state">No hay regiones registradas.</p>
+        {% endfor %}
+    </div>
+
+    {% include 'wiki/pagination.html' %}
+</section>
+{% endblock %}

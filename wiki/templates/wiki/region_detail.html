@@ -1,0 +1,37 @@
+{% extends 'wiki/base.html' %}
+{% load static %}
+
+{% block title %}{{ region.name }} | Runeterra Archive{% endblock %}
+
+{% block content %}
+<article class="detail-panel">
+    <div class="detail-heading">
+        <div>
+            <p class="eyebrow">{{ region.faction }}</p>
+            <h2>{{ region.name }}</h2>
+            <p class="detail-subtitle">Capital: {{ region.capital }} · Código: {{ region.short_code }}</p>
+        </div>
+        <img
+            src="{{ region.wiki_image_url }}"
+            alt="{{ region.name }}"
+            onerror="this.onerror=null;this.src='{% static 'wiki/placeholders/region.svg' %}';"
+        >
+    </div>
+
+    <section class="panel">
+        <h3>Descripción</h3>
+        <p class="lore-copy">{{ region.description }}</p>
+    </section>
+
+    <section class="panel">
+        <h3>Campeones vinculados</h3>
+        <ul class="detail-list">
+            {% for champion in region.champions.all %}
+                <li><a href="{% url 'wiki:champion_detail' champion.pk %}">{{ champion.name }}</a></li>
+            {% empty %}
+                <li>Esta región todavía no tiene campeones asociados.</li>
+            {% endfor %}
+        </ul>
+    </section>
+</article>
+{% endblock %}
