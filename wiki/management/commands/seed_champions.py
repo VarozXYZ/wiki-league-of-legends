@@ -292,12 +292,12 @@ CHAMPIONS = [
 
 
 class Command(BaseCommand):
-    help = 'Seed the database with regions and champions, and download champion images.'
+    help = 'Seed the database with regions and champions, and verify local champion images.'
 
     def handle(self, *args, **options):
         self._seed_regions()
         self._seed_champions()
-        self._download_images()
+        self._verify_images()
 
     def _seed_regions(self):
         for data in REGIONS:
@@ -326,54 +326,20 @@ class Command(BaseCommand):
             # Restore the key for potential re-runs
             data['regions'] = region_names
 
-    def _download_images(self):
-        try:
-            import requests
-        except ImportError:
-            self.stdout.write(self.style.WARNING('requests not installed, skipping image download.'))
-            return
-
-        out_dir = os.path.join('static', 'wiki', 'champions')
-        os.makedirs(out_dir, exist_ok=True)
-
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-        base = 'https://raw.communitydragon.org/latest'
-
-        self.stdout.write('Fetching champion ID list from CommunityDragon...')
-        try:
-            r = requests.get(
-                f'{base}/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json',
-                headers=headers,
-                timeout=30,
-            )
-            r.raise_for_status()
-            summary = r.json()
-        except Exception as e:
-            self.stdout.write(self.style.WARNING(f'Could not fetch champion list: {e}'))
-            return
-
-        # Build a lookup: lowercase name → id
-        id_map = {c['name'].lower(): c['id'] for c in summary}
-
+    def _verify_images(self):
+        img_dir = os.path.join('static', 'wiki', 'champions')
         champion_names = list(Champion.objects.values_list('name', flat=True))
+        missing = []
         for name in champion_names:
-            dest = os.path.join(out_dir, f'{name}.png')
-            if os.path.exists(dest):
-                continue
-
-            champ_id = id_map.get(name.lower())
-            if champ_id is None:
-                self.stdout.write(self.style.WARNING(f'  No ID found for: {name}'))
-                continue
-
-            url = f'{base}/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/{champ_id}.png'
-            try:
-                resp = requests.get(url, headers=headers, timeout=30)
-                resp.raise_for_status()
-                with open(dest, 'wb') as f:
-                    f.write(resp.content)
-                self.stdout.write(f'  Downloaded: {name}.png ({len(resp.content)} bytes)')
-            except Exception as e:
-                self.stdout.write(self.style.WARNING(f'  Failed {name}: {e}'))
-
-        self.stdout.write(self.style.SUCCESS('Done.'))
+            path = os.path.join(img_dir, f'{name}.png')
+            if os.path.exists(path):
+                self.stdout.write(f'  OK: {name}.png')
+            else:
+                missing.append(name)
+                self.stdout.write(self.style.WARNING(f'  Missing: {name}.png'))
+        if missing:
+            self.stdout.write(self.style.WARNING(
+                f'{len(missing)} image(s) missing. Place them in {img_dir}/'
+            ))
+        else:
+            self.stdout.write(self.style.SUCCESS('All champion images present.'))

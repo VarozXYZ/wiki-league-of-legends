@@ -259,11 +259,11 @@ def _clean_name(name):
 
 
 class Command(BaseCommand):
-    help = 'Seed the database with items and download item icons from CommunityDragon.'
+    help = 'Seed the database with items and verify local item icons.'
 
     def handle(self, *args, **options):
         self._seed_items()
-        self._download_images()
+        self._verify_images()
 
     def _seed_items(self):
         for data in ITEMS:
@@ -276,57 +276,20 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f'  Item already exists: {item.name}')
 
-    def _download_images(self):
-        try:
-            import requests
-        except ImportError:
-            self.stdout.write(self.style.WARNING('requests not installed, skipping image download.'))
-            return
-
-        out_dir = os.path.join('static', 'wiki', 'items')
-        os.makedirs(out_dir, exist_ok=True)
-
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-        base = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default'
-
-        self.stdout.write('Fetching item list from CommunityDragon...')
-        try:
-            r = requests.get(
-                f'{base}/v1/items.json',
-                headers=headers,
-                timeout=30,
-            )
-            r.raise_for_status()
-            all_items = r.json()
-        except Exception as e:
-            self.stdout.write(self.style.WARNING(f'Could not fetch item list: {e}'))
-            return
-
-        # Build case-insensitive name → iconPath lookup
-        icon_map = {item['name'].lower(): item.get('iconPath', '') for item in all_items}
-
+    def _verify_images(self):
+        img_dir = os.path.join('static', 'wiki', 'items')
+        missing = []
         for data in ITEMS:
-            name = data['name']
-            clean = _clean_name(name)
-            dest = os.path.join(out_dir, f'{clean}.png')
-            if os.path.exists(dest):
-                self.stdout.write(f'  Already exists: {clean}.png')
-                continue
-
-            icon_path = icon_map.get(name.lower(), '')
-            if not icon_path:
-                # Fallback: use image_url from data directly
-                url = data['image_url']
+            clean = _clean_name(data['name'])
+            path = os.path.join(img_dir, f'{clean}.png')
+            if os.path.exists(path):
+                self.stdout.write(f'  OK: {clean}.png')
             else:
-                url = base + '/' + icon_path.replace('/lol-game-data/assets/', '').lower()
-
-            try:
-                resp = requests.get(url, headers=headers, timeout=30)
-                resp.raise_for_status()
-                with open(dest, 'wb') as f:
-                    f.write(resp.content)
-                self.stdout.write(f'  Downloaded: {clean}.png ({len(resp.content)} bytes)')
-            except Exception as e:
-                self.stdout.write(self.style.WARNING(f'  Failed {name}: {e}'))
-
-        self.stdout.write(self.style.SUCCESS('Done.'))
+                missing.append(clean)
+                self.stdout.write(self.style.WARNING(f'  Missing: {clean}.png'))
+        if missing:
+            self.stdout.write(self.style.WARNING(
+                f'{len(missing)} image(s) missing. Place them in {img_dir}/'
+            ))
+        else:
+            self.stdout.write(self.style.SUCCESS('All item images present.'))
